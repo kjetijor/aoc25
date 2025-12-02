@@ -42,15 +42,35 @@ impl Dial {
         Self { size, position, zero_hits: 0 }
     }
 
+    /*
+        position = 0, zero_hits = 2
+        L5 gives:
+          position 95 (correct)
+          zero_hits 3 (wrong)
+
+        pos=0, zh=2, n = 5
+        l != 0, next.
+        add truncating n / 100 = 0 to zh, zh remains 2.
+        newpos, overflowed = overflowing sub 0 - 5
+
+     */
+
     pub fn left(&mut self, n: u64) {
+        if n == 0 {
+            return;
+        }
         self.zero_hits += n / self.size;
         let (newpos, overflowed) = self.position.overflowing_sub(n % self.size);
         if overflowed {
-            self.position = newpos.overflowing_add(self.size).0;
-            self.zero_hits += 1;
+            if self.position != 0 {
+                self.zero_hits += 1;
+            }
+
+            self.position = self.size - (n % self.size - self.position);
         } else {
             self.position = newpos;
-        }
+//            self.zero_hits += if newpos == 0 { 1 } else { 0 }
+        }        
 //        self.position = newpos % self.size;
     }
 
