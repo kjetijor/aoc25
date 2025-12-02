@@ -42,37 +42,29 @@ impl Dial {
         Self { size, position, zero_hits: 0 }
     }
 
-    /*
-        position = 0, zero_hits = 2
-        L5 gives:
-          position 95 (correct)
-          zero_hits 3 (wrong)
-
-        pos=0, zh=2, n = 5
-        l != 0, next.
-        add truncating n / 100 = 0 to zh, zh remains 2.
-        newpos, overflowed = overflowing sub 0 - 5
-
-     */
-
+    // at 55, left 55.
+    // full revs = 0
+    // remainder = 55
     pub fn left(&mut self, n: u64) {
         if n == 0 {
             return;
         }
-        self.zero_hits += n / self.size;
-        let (newpos, overflowed) = self.position.overflowing_sub(n % self.size);
-        if overflowed {
+        let full_revolutions = n / self.size;
+        // i.e. size = 20, move 40, 40 / 20 = 2 full revolutions - including landing on zero
+        self.zero_hits += full_revolutions;
+        let remainder = n % self.size;
+        if remainder > self.position {
             if self.position != 0 {
                 self.zero_hits += 1;
             }
-
-            self.position = self.size - (n % self.size - self.position);
+            self.position = self.size - (remainder - self.position);
         } else {
-            self.position = newpos;
-//            self.zero_hits += if newpos == 0 { 1 } else { 0 }
-        }        
-//        self.position = newpos % self.size;
-    }
+            if self.position - remainder == 0 {
+                self.zero_hits += 1;
+            }
+            self.position -= remainder;
+        }
+    }  
 
     pub fn right(&mut self, n: u64) {
         let truncated = n % self.size;
@@ -119,6 +111,12 @@ The dial is rotated L82 to point at 32; during this rotation, it points at 0 onc
             TestCase { movement: "L30", expected_pos: 52, expected_zero_hits: 1 },
             TestCase { movement: "R48", expected_pos: 0, expected_zero_hits: 2 },
             TestCase { movement: "L5", expected_pos: 95, expected_zero_hits: 2 },
+            TestCase { movement: "R60", expected_pos: 55, expected_zero_hits: 3 },
+            TestCase { movement: "L55", expected_pos: 0, expected_zero_hits: 4 },
+            TestCase { movement: "L1", expected_pos: 99, expected_zero_hits: 4 },
+            TestCase { movement: "L99", expected_pos: 0, expected_zero_hits: 5 },
+            TestCase { movement: "R14", expected_pos: 14, expected_zero_hits: 5 },
+            TestCase { movement: "L82", expected_pos: 32, expected_zero_hits: 6 },
         ];
         let mut dial = Dial::new(100, 50);
         for tc in moves {
