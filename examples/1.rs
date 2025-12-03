@@ -16,11 +16,16 @@ fn main() {
         .collect::<Vec<String>>();
     let mut dial = Dial::new(100, 50);
     let mut zeroes = 0;
-    for m in moves {
-        dial.do_move(&m).unwrap();
+    for m in &moves {
+        dial.do_move(m).unwrap();
         if dial.position == 0 {
             zeroes += 1;
         }
     }
     println!("zeroes is {}", zeroes);
+    let mut dial = Dial::new(100, 50);
+    for m in &moves {
+        dial.do_move(m).unwrap();
+    }
+    println!("final position is {}, zero hits {}", dial.position, dial.zero_hits);
 }

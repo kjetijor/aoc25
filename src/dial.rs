@@ -42,15 +42,11 @@ impl Dial {
         Self { size, position, zero_hits: 0 }
     }
 
-    // at 55, left 55.
-    // full revs = 0
-    // remainder = 55
     pub fn left(&mut self, n: u64) {
         if n == 0 {
             return;
         }
         let full_revolutions = n / self.size;
-        // i.e. size = 20, move 40, 40 / 20 = 2 full revolutions - including landing on zero
         self.zero_hits += full_revolutions;
         let remainder = n % self.size;
         if remainder > self.position {
