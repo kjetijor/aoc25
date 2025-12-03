@@ -63,9 +63,9 @@ impl Dial {
     }  
 
     pub fn right(&mut self, n: u64) {
-        let truncated = n % self.size;
+        let remainder = n % self.size;
         self.zero_hits += n / self.size;
-        if self.position + truncated >= self.size {
+        if self.position + remainder >= self.size {
             self.zero_hits += 1;
         }
         self.position = (self.position + n) % self.size;
