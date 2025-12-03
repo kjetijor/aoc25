@@ -81,14 +81,21 @@ impl From<std::str::Utf8Error> for IdRangeError {
         IdRangeError::UTF8Error(err)
     }
 }
+
+fn filter_whitespace(s: &str) -> String {
+    let mut ret = s.to_string();
+    ret.retain(|c| !c.is_whitespace());
+    ret
+}
+
 impl TryFrom<&str> for IdRange {
     type Error = IdRangeError;
 
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         // do we care about leading zeroes for parsing ?
         let parts: Vec<&str> = s.split('-').collect();
-        let min = parts[0].parse::<u64>()?;
-        let max = parts[1].parse::<u64>()?;
+        let min = filter_whitespace(parts[0]).parse::<u64>()?;
+        let max = filter_whitespace(parts[1]).parse::<u64>()?;
         if min >= max {
             return Err(IdRangeError::RangeError);
         }
