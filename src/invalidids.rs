@@ -60,20 +60,10 @@ pub fn naive_invalid_id(id: u64) -> bool {
     first == second
 }
 
-pub fn naive_invalid_ids(range: &IdRange) -> Vec<u64> {
+pub fn naive_invalid_ids<T: Fn(u64) -> bool>(range: &IdRange, check: T) -> Vec<u64> {
     let mut invalids = Vec::new();
     for id in range.min..=range.max {
-        if naive_invalid_id(id) {
-            invalids.push(id);
-        }
-    }
-    invalids
-}
-
-pub fn naive_invalid_ids_pt2(range: &IdRange) -> Vec<u64> {
-    let mut invalids = Vec::new();
-    for id in range.min..=range.max {
-        if naive_invalid_id_pt2(id) {
+        if check(id) {
             invalids.push(id);
         }
     }
@@ -172,10 +162,12 @@ mod tests {
         let items: Vec<IdRange> = iter_ranges(rdr)
             .collect::<Result<Vec<IdRange>, IdRangeError>>()
             .unwrap();
+
+
         let mut res = 0u64;
 
         for r in &items {
-            let invalids = naive_invalid_ids(r);
+            let invalids = naive_invalid_ids(r, naive_invalid_id);
             res += invalids.iter().sum::<u64>();
         }
         assert_eq!(res, 1227775554);
@@ -190,7 +182,7 @@ mod tests {
         let mut res = 0u64;
 
         for r in &items {
-            let invalids = naive_invalid_ids_pt2(r);
+            let invalids = naive_invalid_ids(r, naive_invalid_id_pt2);
             res += invalids.iter().sum::<u64>();
         }
         assert_eq!(res, 4174379265);

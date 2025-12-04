@@ -1,4 +1,4 @@
-use aoc_25::invalidids::{iter_ranges, naive_invalid_ids};
+use aoc_25::invalidids::{iter_ranges, naive_invalid_id, naive_invalid_ids};
 use std::fs::File;
 
 fn main() {
@@ -11,7 +11,7 @@ fn main() {
     let file = File::open(&args[1]).expect("Failed to open input file");
     for r in iter_ranges(file) {
         let r = r.expect("Failed to parse range");
-        res += naive_invalid_ids(&r).into_iter().sum::<u64>();
+        res += naive_invalid_ids(&r, naive_invalid_id).into_iter().sum::<u64>();
     }
     println!("Sum of invalid IDs: {}", res);
 }
