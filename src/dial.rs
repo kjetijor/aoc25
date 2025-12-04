@@ -55,7 +55,7 @@ impl Dial {
             }
             self.position = self.size - (remainder - self.position);
         } else {
-            if self.position - remainder == 0 {
+            if self.position - remainder == 0 && self.position != 0 {
                 self.zero_hits += 1;
             }
             self.position -= remainder;
@@ -82,21 +82,6 @@ mod tests {
 
     #[test]
     fn given_testcase_zero_passes() {
-        /*
-The dial starts by pointing at 50.
-The dial is rotated L68 to point at 82; during this rotation, it points at 0 once.
-The dial is rotated L30 to point at 52.
-The dial is rotated R48 to point at 0.
-The dial is rotated L5 to point at 95.
-The dial is rotated R60 to point at 55; during this rotation, it points at 0 once.
-The dial is rotated L55 to point at 0.
-The dial is rotated L1 to point at 99.
-The dial is rotated L99 to point at 0.
-The dial is rotated R14 to point at 14.
-The dial is rotated L82 to point at 32; during this rotation, it points at 0 once.
-
-// FIXME: multiple revolutions ?
-*/
         struct TestCase {
             movement: &'static str,
             expected_pos: u64,
@@ -128,10 +113,12 @@ The dial is rotated L82 to point at 32; during this rotation, it points at 0 onc
 
     #[test]
     fn test_zero_passes() {
+        #[derive(Debug)]
         enum Move {
             Left(u64),
             Right(u64),
         }
+        #[derive(Debug)]
         struct TestCase {
             startpos: u64,
             m: Move,
@@ -145,7 +132,7 @@ The dial is rotated L82 to point at 32; during this rotation, it points at 0 onc
             TestCase { startpos: 3, m: Move::Left(4), expected_pos: 9, expected_zero_passes: 1, desc: "Left with wrap" },
             TestCase { startpos: 0, m: Move::Left(20), expected_pos: 0, expected_zero_passes: 2, desc: "Left two full circles" },
             TestCase { startpos: 0, m: Move::Right(20), expected_pos: 0, expected_zero_passes: 2, desc: "Right two full circles" },
-            TestCase { startpos: 8, m: Move::Right(25), expected_pos: 3, expected_zero_passes: 3, desc: "Right over two circles" },
+            TestCase { startpos: 8, m: Move::Right(25), expected_pos: 3, expected_zero_passes: 3, desc: "Right over three circles" },
             TestCase { startpos: 2, m: Move::Left(25), expected_pos: 7, expected_zero_passes: 3, desc: "Left over two circles" },
         ];
         for tc in test_cases {

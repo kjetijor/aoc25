@@ -23,6 +23,30 @@ pub fn iter_ranges<R: std::io::Read>(rdr: R) -> impl Iterator<Item=Result<IdRang
         })
 }
 
+ pub fn naive_invalid_id_pt2(id: u64) -> bool {
+    let id = id.to_string();
+    if id.len() < 2 {
+        return false;
+    }
+    let mut pivot = 1usize;
+   loop {
+        while !id.len().is_multiple_of(pivot) && pivot < id.len() / 2 {
+            pivot += 1;
+        }
+        if pivot > id.len() / 2 {
+            break;
+        }
+        let pattern_candidate = &id[0..pivot];
+        let corpus = &id[pivot..];
+        let check = pattern_candidate.repeat(corpus.len() / pattern_candidate.len());
+        if check == corpus {
+            return true;
+        }
+        pivot += 1;
+    }
+    false
+ }
+
 pub fn naive_invalid_id(id: u64) -> bool {
     let s = id.to_string();
     let len = s.len();
@@ -38,6 +62,16 @@ pub fn naive_invalid_ids(range: &IdRange) -> Vec<u64> {
     let mut invalids = Vec::new();
     for id in range.min..=range.max {
         if naive_invalid_id(id) {
+            invalids.push(id);
+        }
+    }
+    invalids
+}
+
+pub fn naive_invalid_ids_pt2(range: &IdRange) -> Vec<u64> {
+    let mut invalids = Vec::new();
+    for id in range.min..=range.max {
+        if naive_invalid_id_pt2(id) {
             invalids.push(id);
         }
     }
@@ -144,6 +178,19 @@ mod tests {
     }
 
     #[test]
+    fn given_testcase_pt2() {
+        let rdr = Cursor::new(GIVEN_TESTCASE);
+        let items: Vec<IdRange> = iter_ranges(rdr).collect::<Result<Vec<IdRange>, IdRangeError>>().unwrap();
+        let mut res = 0u64;
+
+        for r in &items {
+            let invalids = naive_invalid_ids_pt2(r);
+            res += invalids.iter().sum::<u64>();
+        }
+        assert_eq!(res, 4174379265);
+    }
+
+    #[test]
     fn test_id_range_try_from() {
         assert_eq!(IdRange::try_from("100-200"), Ok(IdRange { min: 100, max: 200 }));
         assert_eq!(IdRange::try_from("200-100"), Err(IdRangeError::RangeError));
@@ -186,6 +233,15 @@ mod tests {
         });
         let i1 = brc.next().unwrap().unwrap();
         assert_eq!(i1, IdRange { min: 11, max: 22 });
-
     }
-}
+
+    #[test]
+    fn test_naive_invalid_id_pt2() {
+        for good_id in &[11, 1212, 123123123] {
+            assert!(naive_invalid_id_pt2(*good_id), "Expected {} to be valid", good_id);
+        }
+        for bad_id in &[123, 1231, 1231231, 123412345, 123451234, 111112] {
+            assert!(!naive_invalid_id_pt2(*bad_id), "Expected {} to be invalid", bad_id);
+        }
+    }
+} 
