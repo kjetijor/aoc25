@@ -1,6 +1,6 @@
+use aoc_25::dial::Dial;
 use std::env::args;
 use std::fs;
-use aoc_25::dial::Dial;
 
 fn main() {
     let args: Vec<String> = args().collect();
@@ -10,7 +10,8 @@ fn main() {
     }
 
     let moves = fs::read_to_string(&args[1])
-        .expect("Failed to read input file").split("\n")
+        .expect("Failed to read input file")
+        .split("\n")
         .map(|s| s.to_string())
         .filter(|s| !s.is_empty())
         .collect::<Vec<String>>();
@@ -27,5 +28,8 @@ fn main() {
     for m in &moves {
         dial.do_move(m).unwrap();
     }
-    println!("final position is {}, zero hits {}", dial.position, dial.zero_hits);
+    println!(
+        "final position is {}, zero hits {}",
+        dial.position, dial.zero_hits
+    );
 }

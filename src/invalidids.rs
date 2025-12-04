@@ -1,4 +1,4 @@
-use std::{ io::BufRead};
+use std::io::BufRead;
 
 #[derive(Debug, PartialEq)]
 pub struct IdRange {
@@ -7,29 +7,31 @@ pub struct IdRange {
 }
 // invalid ids are ids made up of sequences of two identical sequences.
 // i.e. 123123 == invalid, 55 is invalid.
-// 
+//
 // odd number of digits can never be invalid
 
-pub fn iter_ranges<R: std::io::Read>(rdr: R) -> impl Iterator<Item=Result<IdRange, IdRangeError>> {
+pub fn iter_ranges<R: std::io::Read>(
+    rdr: R,
+) -> impl Iterator<Item = Result<IdRange, IdRangeError>> {
     std::io::BufReader::new(rdr)
         .split(b',')
         .filter(|b| match b {
             Err(_) => true,
-            Ok(v) => !v.is_empty()
+            Ok(v) => !v.is_empty(),
         })
         .map(|r| match r {
             Ok(v) => IdRange::try_from(v.as_slice()),
-            Err(x) => Err(IdRangeError::from(x))
+            Err(x) => Err(IdRangeError::from(x)),
         })
 }
 
- pub fn naive_invalid_id_pt2(id: u64) -> bool {
+pub fn naive_invalid_id_pt2(id: u64) -> bool {
     let id = id.to_string();
     if id.len() < 2 {
         return false;
     }
     let mut pivot = 1usize;
-   loop {
+    loop {
         while !id.len().is_multiple_of(pivot) && pivot < id.len() / 2 {
             pivot += 1;
         }
@@ -45,7 +47,7 @@ pub fn iter_ranges<R: std::io::Read>(rdr: R) -> impl Iterator<Item=Result<IdRang
         pivot += 1;
     }
     false
- }
+}
 
 pub fn naive_invalid_id(id: u64) -> bool {
     let s = id.to_string();
@@ -148,9 +150,9 @@ impl TryFrom<&[u8]> for IdRange {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use std::io::BufRead;
     use std::io::Cursor;
-    use super::*;
     static GIVEN_TESTCASE: &str = "\
         11-22,95-115,998-1012,1188511880-1188511890,222220-222224,\
         1698522-1698528,446443-446449,38593856-38593862,565653-565659,\
@@ -167,7 +169,9 @@ mod tests {
     #[test]
     fn given_testcase() {
         let rdr = Cursor::new(GIVEN_TESTCASE);
-        let items: Vec<IdRange> = iter_ranges(rdr).collect::<Result<Vec<IdRange>, IdRangeError>>().unwrap();
+        let items: Vec<IdRange> = iter_ranges(rdr)
+            .collect::<Result<Vec<IdRange>, IdRangeError>>()
+            .unwrap();
         let mut res = 0u64;
 
         for r in &items {
@@ -180,7 +184,9 @@ mod tests {
     #[test]
     fn given_testcase_pt2() {
         let rdr = Cursor::new(GIVEN_TESTCASE);
-        let items: Vec<IdRange> = iter_ranges(rdr).collect::<Result<Vec<IdRange>, IdRangeError>>().unwrap();
+        let items: Vec<IdRange> = iter_ranges(rdr)
+            .collect::<Result<Vec<IdRange>, IdRangeError>>()
+            .unwrap();
         let mut res = 0u64;
 
         for r in &items {
@@ -192,11 +198,20 @@ mod tests {
 
     #[test]
     fn test_id_range_try_from() {
-        assert_eq!(IdRange::try_from("100-200"), Ok(IdRange { min: 100, max: 200 }));
+        assert_eq!(
+            IdRange::try_from("100-200"),
+            Ok(IdRange { min: 100, max: 200 })
+        );
         assert_eq!(IdRange::try_from("200-100"), Err(IdRangeError::RangeError));
         assert_eq!(IdRange::try_from("100-100"), Err(IdRangeError::RangeError));
-        assert!(matches!(IdRange::try_from("abc-def"), Err(IdRangeError::ParseError(_))));
-        assert!(matches!(IdRange::try_from("10-def"), Err(IdRangeError::ParseError(_))));
+        assert!(matches!(
+            IdRange::try_from("abc-def"),
+            Err(IdRangeError::ParseError(_))
+        ));
+        assert!(matches!(
+            IdRange::try_from("10-def"),
+            Err(IdRangeError::ParseError(_))
+        ));
     }
 
     #[test]
@@ -204,32 +219,67 @@ mod tests {
         let rdr = Cursor::new(
             "11-22,95-115,998-1012,1188511880-1188511890,\
             222220-222224,1698522-1698528,446443-446449,38593856-38593862,\
-            565653-565659,824824821-824824827,2121212118-2121212124");   
-        let items: Vec<IdRange> = iter_ranges(rdr).collect::<Result<Vec<IdRange>, IdRangeError>>().unwrap();
-        assert_eq!(items, vec![
-            IdRange { min: 11, max: 22 },
-            IdRange { min: 95, max: 115 },
-            IdRange { min: 998, max: 1012 },
-            IdRange { min: 1188511880, max: 1188511890 },
-            IdRange { min: 222220, max: 222224 },
-            IdRange { min: 1698522, max: 1698528 },
-            IdRange { min: 446443, max: 446449 },
-            IdRange { min: 38593856, max: 38593862 },
-            IdRange { min: 565653, max: 565659 },
-            IdRange { min: 824824821, max: 824824827 },
-            IdRange { min: 2121212118, max: 2121212124 },
-        ]);
+            565653-565659,824824821-824824827,2121212118-2121212124",
+        );
+        let items: Vec<IdRange> = iter_ranges(rdr)
+            .collect::<Result<Vec<IdRange>, IdRangeError>>()
+            .unwrap();
+        assert_eq!(
+            items,
+            vec![
+                IdRange { min: 11, max: 22 },
+                IdRange { min: 95, max: 115 },
+                IdRange {
+                    min: 998,
+                    max: 1012
+                },
+                IdRange {
+                    min: 1188511880,
+                    max: 1188511890
+                },
+                IdRange {
+                    min: 222220,
+                    max: 222224
+                },
+                IdRange {
+                    min: 1698522,
+                    max: 1698528
+                },
+                IdRange {
+                    min: 446443,
+                    max: 446449
+                },
+                IdRange {
+                    min: 38593856,
+                    max: 38593862
+                },
+                IdRange {
+                    min: 565653,
+                    max: 565659
+                },
+                IdRange {
+                    min: 824824821,
+                    max: 824824827
+                },
+                IdRange {
+                    min: 2121212118,
+                    max: 2121212124
+                },
+            ]
+        );
     }
 
     #[test]
     fn test_naive_invalid_ids() {
-        let rdr = Cursor::new("11-22,95-115,998-1012,1188511880-1188511890,222220-222224,
+        let rdr = Cursor::new(
+            "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,
 1698522-1698528,446443-446449,38593856-38593862,565653-565659,
-824824821-824824827,2121212118-2121212124");
+824824821-824824827,2121212118-2121212124",
+        );
 
         let mut brc = std::io::BufReader::new(rdr).split(b',').map(|r| match r {
             Ok(v) => IdRange::try_from(v.as_slice()),
-            Err(x) => Err(IdRangeError::from(x))
+            Err(x) => Err(IdRangeError::from(x)),
         });
         let i1 = brc.next().unwrap().unwrap();
         assert_eq!(i1, IdRange { min: 11, max: 22 });
@@ -238,10 +288,18 @@ mod tests {
     #[test]
     fn test_naive_invalid_id_pt2() {
         for good_id in &[11, 1212, 123123123] {
-            assert!(naive_invalid_id_pt2(*good_id), "Expected {} to be valid", good_id);
+            assert!(
+                naive_invalid_id_pt2(*good_id),
+                "Expected {} to be valid",
+                good_id
+            );
         }
         for bad_id in &[123, 1231, 1231231, 123412345, 123451234, 111112] {
-            assert!(!naive_invalid_id_pt2(*bad_id), "Expected {} to be invalid", bad_id);
+            assert!(
+                !naive_invalid_id_pt2(*bad_id),
+                "Expected {} to be invalid",
+                bad_id
+            );
         }
     }
-} 
+}

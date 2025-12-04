@@ -39,7 +39,11 @@ impl Dial {
     }
 
     pub fn new(size: u64, position: u64) -> Self {
-        Self { size, position, zero_hits: 0 }
+        Self {
+            size,
+            position,
+            zero_hits: 0,
+        }
     }
 
     pub fn left(&mut self, n: u64) {
@@ -60,7 +64,7 @@ impl Dial {
             }
             self.position -= remainder;
         }
-    }  
+    }
 
     pub fn right(&mut self, n: u64) {
         let remainder = n % self.size;
@@ -88,27 +92,74 @@ mod tests {
             expected_zero_hits: u64,
         }
         let moves = vec![
-            TestCase { movement: "L68", expected_pos: 82, expected_zero_hits: 1 },
-            TestCase { movement: "L30", expected_pos: 52, expected_zero_hits: 1 },
-            TestCase { movement: "R48", expected_pos: 0, expected_zero_hits: 2 },
-            TestCase { movement: "L5", expected_pos: 95, expected_zero_hits: 2 },
-            TestCase { movement: "R60", expected_pos: 55, expected_zero_hits: 3 },
-            TestCase { movement: "L55", expected_pos: 0, expected_zero_hits: 4 },
-            TestCase { movement: "L1", expected_pos: 99, expected_zero_hits: 4 },
-            TestCase { movement: "L99", expected_pos: 0, expected_zero_hits: 5 },
-            TestCase { movement: "R14", expected_pos: 14, expected_zero_hits: 5 },
-            TestCase { movement: "L82", expected_pos: 32, expected_zero_hits: 6 },
+            TestCase {
+                movement: "L68",
+                expected_pos: 82,
+                expected_zero_hits: 1,
+            },
+            TestCase {
+                movement: "L30",
+                expected_pos: 52,
+                expected_zero_hits: 1,
+            },
+            TestCase {
+                movement: "R48",
+                expected_pos: 0,
+                expected_zero_hits: 2,
+            },
+            TestCase {
+                movement: "L5",
+                expected_pos: 95,
+                expected_zero_hits: 2,
+            },
+            TestCase {
+                movement: "R60",
+                expected_pos: 55,
+                expected_zero_hits: 3,
+            },
+            TestCase {
+                movement: "L55",
+                expected_pos: 0,
+                expected_zero_hits: 4,
+            },
+            TestCase {
+                movement: "L1",
+                expected_pos: 99,
+                expected_zero_hits: 4,
+            },
+            TestCase {
+                movement: "L99",
+                expected_pos: 0,
+                expected_zero_hits: 5,
+            },
+            TestCase {
+                movement: "R14",
+                expected_pos: 14,
+                expected_zero_hits: 5,
+            },
+            TestCase {
+                movement: "L82",
+                expected_pos: 32,
+                expected_zero_hits: 6,
+            },
         ];
         let mut dial = Dial::new(100, 50);
         for tc in moves {
             let startpos = dial.position;
             let start_zero_hits = dial.zero_hits;
-            
-            dial.do_move(tc.movement).unwrap();
-            assert_eq!(dial.position, tc.expected_pos, "Failed position for move {}", tc.movement);
-            assert_eq!(dial.zero_hits, tc.expected_zero_hits, "Failed zero hits for move {}-{}->{} zp {} -> {}", startpos, tc.movement, dial.position, start_zero_hits, dial.zero_hits);
-        }
 
+            dial.do_move(tc.movement).unwrap();
+            assert_eq!(
+                dial.position, tc.expected_pos,
+                "Failed position for move {}",
+                tc.movement
+            );
+            assert_eq!(
+                dial.zero_hits, tc.expected_zero_hits,
+                "Failed zero hits for move {}-{}->{} zp {} -> {}",
+                startpos, tc.movement, dial.position, start_zero_hits, dial.zero_hits
+            );
+        }
     }
 
     #[test]
@@ -127,13 +178,55 @@ mod tests {
             desc: &'static str,
         }
         let test_cases = vec![
-            TestCase { startpos: 0, m: Move::Right(10), expected_pos: 0, expected_zero_passes: 1, desc: "Right full circle" },
-            TestCase { startpos: 5, m: Move::Right(7), expected_pos: 2, expected_zero_passes: 1, desc: "Right with wrap" },
-            TestCase { startpos: 3, m: Move::Left(4), expected_pos: 9, expected_zero_passes: 1, desc: "Left with wrap" },
-            TestCase { startpos: 0, m: Move::Left(20), expected_pos: 0, expected_zero_passes: 2, desc: "Left two full circles" },
-            TestCase { startpos: 0, m: Move::Right(20), expected_pos: 0, expected_zero_passes: 2, desc: "Right two full circles" },
-            TestCase { startpos: 8, m: Move::Right(25), expected_pos: 3, expected_zero_passes: 3, desc: "Right over three circles" },
-            TestCase { startpos: 2, m: Move::Left(25), expected_pos: 7, expected_zero_passes: 3, desc: "Left over two circles" },
+            TestCase {
+                startpos: 0,
+                m: Move::Right(10),
+                expected_pos: 0,
+                expected_zero_passes: 1,
+                desc: "Right full circle",
+            },
+            TestCase {
+                startpos: 5,
+                m: Move::Right(7),
+                expected_pos: 2,
+                expected_zero_passes: 1,
+                desc: "Right with wrap",
+            },
+            TestCase {
+                startpos: 3,
+                m: Move::Left(4),
+                expected_pos: 9,
+                expected_zero_passes: 1,
+                desc: "Left with wrap",
+            },
+            TestCase {
+                startpos: 0,
+                m: Move::Left(20),
+                expected_pos: 0,
+                expected_zero_passes: 2,
+                desc: "Left two full circles",
+            },
+            TestCase {
+                startpos: 0,
+                m: Move::Right(20),
+                expected_pos: 0,
+                expected_zero_passes: 2,
+                desc: "Right two full circles",
+            },
+            TestCase {
+                startpos: 8,
+                m: Move::Right(25),
+                expected_pos: 3,
+                expected_zero_passes: 3,
+                desc: "Right over three circles",
+            },
+            TestCase {
+                startpos: 2,
+                m: Move::Left(25),
+                expected_pos: 7,
+                expected_zero_passes: 3,
+                desc: "Left over two circles",
+            },
         ];
         for tc in test_cases {
             let mut dial = Dial::new(10, tc.startpos);
@@ -141,8 +234,16 @@ mod tests {
                 Move::Left(n) => dial.left(n),
                 Move::Right(n) => dial.right(n),
             }
-            assert_eq!(dial.position, tc.expected_pos, "Failed position for {}", tc.desc);
-            assert_eq!(dial.zero_hits, tc.expected_zero_passes, "Failed zero passes for {}", tc.desc);
+            assert_eq!(
+                dial.position, tc.expected_pos,
+                "Failed position for {}",
+                tc.desc
+            );
+            assert_eq!(
+                dial.zero_hits, tc.expected_zero_passes,
+                "Failed zero passes for {}",
+                tc.desc
+            );
         }
     }
 
@@ -178,21 +279,55 @@ mod tests {
             expected_pos: u64,
         }
         let moves = vec![
-            TestCase { movement: "L68", expected_pos: 82 },
-            TestCase { movement: "L30", expected_pos: 52 },
-            TestCase { movement: "R48", expected_pos: 0 },
-            TestCase { movement: "L5", expected_pos: 95 },
-            TestCase { movement: "R60", expected_pos: 55 },
-            TestCase { movement: "L55", expected_pos: 0 },
-            TestCase { movement: "L1", expected_pos: 99 },
-            TestCase { movement: "L99", expected_pos: 0 },
-            TestCase { movement: "R14", expected_pos: 14 },
-            TestCase { movement: "L82", expected_pos: 32 },
+            TestCase {
+                movement: "L68",
+                expected_pos: 82,
+            },
+            TestCase {
+                movement: "L30",
+                expected_pos: 52,
+            },
+            TestCase {
+                movement: "R48",
+                expected_pos: 0,
+            },
+            TestCase {
+                movement: "L5",
+                expected_pos: 95,
+            },
+            TestCase {
+                movement: "R60",
+                expected_pos: 55,
+            },
+            TestCase {
+                movement: "L55",
+                expected_pos: 0,
+            },
+            TestCase {
+                movement: "L1",
+                expected_pos: 99,
+            },
+            TestCase {
+                movement: "L99",
+                expected_pos: 0,
+            },
+            TestCase {
+                movement: "R14",
+                expected_pos: 14,
+            },
+            TestCase {
+                movement: "L82",
+                expected_pos: 32,
+            },
         ];
         for tc in moves {
             let curr_pos = dial.position;
             dial.do_move(tc.movement).unwrap();
-            assert_eq!(dial.position, tc.expected_pos, "Failed position for move {} from {} to {}", tc.movement, curr_pos, tc.expected_pos);
+            assert_eq!(
+                dial.position, tc.expected_pos,
+                "Failed position for move {} from {} to {}",
+                tc.movement, curr_pos, tc.expected_pos
+            );
         }
     }
 

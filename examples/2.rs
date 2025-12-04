@@ -1,5 +1,5 @@
+use aoc_25::invalidids::{iter_ranges, naive_invalid_ids};
 use std::fs::File;
-use aoc_25::invalidids::{naive_invalid_ids,iter_ranges};
 
 fn main() {
     let args = std::env::args().collect::<Vec<String>>();
